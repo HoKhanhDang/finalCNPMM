@@ -101,4 +101,4 @@ const changePassword = async (req: Request, res: Response) => {
     }
 };
 
-export { Login, Register, changePassword };
+export default { Login, Register, changePassword };

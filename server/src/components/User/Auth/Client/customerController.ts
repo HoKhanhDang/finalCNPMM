@@ -88,7 +88,7 @@ const registerController = async (req: Request, res: Response) => {
     }
 };
 
-export = {
+export default {
     loginController,
     requestOtpController,
     verifyOtpController,

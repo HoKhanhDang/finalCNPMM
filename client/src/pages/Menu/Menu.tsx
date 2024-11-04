@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import FoodMenu from "./Components/FoodMenuNormal/FoodMenu";
-import FoodMenuSpecial from "./Components/FoodMenuSpecial/FoodMenuSpecial";
+import FoodMenuSpecial from "./Components/FoodMenuNormal/FoodMenuSpecial";
 import SearchBar from "./Components/SeachBar";
 import HeroSection from "../../components/top-title/HeroSection";
 import { useSearchParams } from "react-router-dom";
@@ -65,13 +65,13 @@ const Menu: React.FC = () => {
                             detail={foodDetail?.description as string}
                             image={foodDetail?.image as string}
                         />
-                        <span className="text-[20px] text-red-500 font-bold">
+                        <span className="text-[30px] text-red-500 font-bold">
                             See more items
                         </span>
                     </>
                 )}
 
-                <FoodMenu items={foods} />
+                <FoodMenu items={foods} len={foods.length} />
                 <FoodMenuSpecial items={data} />
             </div>
         </main>

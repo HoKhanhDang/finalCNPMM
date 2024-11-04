@@ -1,22 +1,17 @@
 import { Router } from "express";
 
 import CustomerController from "./customerController";
-const {
-    Login,
-    Register,
-    createNewAccessToken,
-    changePassword,
-} = require("../Auth/Admin/authController");
+
+import AuthAdmin from "../Auth/Admin/authController";
 
 const router = Router();
 import verifyToken from "../../../middlewares/verify-token";
 //request
 
 //auth
-router.post("/login", Login);
-router.post("/register", Register);
-router.get("/token", createNewAccessToken);
-router.put("/changePassword", changePassword);
+router.post("/login", AuthAdmin.Login);
+router.post("/register", AuthAdmin.Register);
+router.put("/changePassword", AuthAdmin.changePassword);
 
 //admin api
 router.get("/getSumCustomer", verifyToken, CustomerController.GetSumCustomer);

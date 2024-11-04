@@ -4,9 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
-body,html {
-    overflow-x: hidden
+body,
+html {
+    overflow-x: hidden;
 }
 @layer base {
     body {
@@ -39,7 +39,7 @@ body,html {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-    background: #4095e6;
+    background: #EF4444;
     border-radius: 5px;
 }
 
@@ -61,6 +61,17 @@ body,html {
     animation: scroll 20s linear infinite;
 }
 
+.my-masonry-grid {
+    display: flex;
+    margin-left: -15px; /* Kích thước gutter offset */
+    width: auto;
+}
+.my-masonry-grid_column {
+    padding-left: 15px; /* Kích thước gutter */
+    background-clip: padding-box;
+}
 
-
-
+/* Kiểu dáng cho các phần tử trong cột */
+.my-masonry-grid_column > div {
+    margin-bottom: 15px;
+}

@@ -1,16 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-    loginController,
-    requestOtpController,
-    verifyOtpController,
-    registerController,
-} = require("./customerController");
+import AuthCustomer from "./customerController";
 
-router.post("/login", loginController);
-router.post("/request-otp", requestOtpController);
-router.post("/verify-otp", verifyOtpController);
-router.post("/register", registerController);
+router.post("/login", AuthCustomer.loginController);
+router.post("/request-otp", AuthCustomer.requestOtpController);
+router.post("/verify-otp", AuthCustomer.verifyOtpController);
+router.post("/register", AuthCustomer.registerController);
 
 export default router;
