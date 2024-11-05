@@ -4,6 +4,7 @@ import {
     DeleteMenu,
     UpdateMenu,
     GetMenuById,
+    GetAllMenu,
     GetMenuByParams,
     GetSumMenuByParams,
     GetSpecialMenu,
@@ -17,8 +18,9 @@ router.post("/", AddMenu);
 router.put("/", UpdateMenu);
 router.delete("/", DeleteMenu);
 
-router.get("/id", GetMenuById);
+router.get("/:id", GetMenuById);
 router.get("/", GetMenuByParams);
+router.get("/all", GetAllMenu);
 router.get("/sum", GetSumMenuByParams);
 router.get("/special-menu", GetSpecialMenu);
 

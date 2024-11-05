@@ -1,45 +1,36 @@
-import db from "../../config/database.config";
-import { convertDay } from "../../utils/Order";
-
-import { IShift } from "./shift.interface";
+import { Shift, IShift } from "./shiftModel"; // Nhập model Shift từ shiftModel
 
 export const getShiftsService = async (): Promise<IShift[]> => {
-    return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM shifts`, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as IShift[]);
-        });
-    });
+    try {
+        const shifts = await Shift.find(); // Lấy tất cả các ca làm việc
+        return shifts;
+    } catch (err) {
+        throw new Error(`Error fetching shifts: ${err}`);
+    }
 };
 
 export const addShiftService = async (params: {
     staffId: number;
     staffName: string;
-    start: string;
-    end: string;
+    start: Date; // Giữ nguyên kiểu Date
+    end: Date;   // Giữ nguyên kiểu Date
     title: string;
-}): Promise<IShift[]> => {
-    const { staffId, staffName, start, end, title } = params;
+}): Promise<IShift> => {
+    const newShift = new Shift(params); // Tạo một đối tượng Shift mới
 
-    return new Promise((resolve, reject) => {
-        db.query(`INSERT INTO shifts SET ?`, params, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as IShift[]);
-        });
-    });
-}
+    try {
+        const savedShift = await newShift.save(); // Lưu ca làm việc vào cơ sở dữ liệu
+        return savedShift; // Trả về ca làm việc đã lưu
+    } catch (err) {
+        throw new Error(`Error adding shift: ${err}`);
+    }
+};
 
-export const deleteShiftService = async (shiftID: number): Promise<IShift[]> => {
-    return new Promise((resolve, reject) => {
-        db.query(`DELETE FROM shifts WHERE id = ?`, shiftID, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as IShift[]);
-        });
-    });
-}
+export const deleteShiftService = async (shiftID: string): Promise<{ affectedRows: number }> => {
+    try {
+        const result = await Shift.deleteOne({ _id: shiftID }); // Xóa ca làm việc theo ID
+        return { affectedRows: result.deletedCount }; // Trả về số dòng bị ảnh hưởng
+    } catch (err) {
+        throw new Error(`Error deleting shift: ${err}`);
+    }
+};
