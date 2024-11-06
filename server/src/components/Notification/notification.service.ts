@@ -1,56 +1,72 @@
-import db from "../../config/database.config";
-import { INotification } from "./notification.interface";
+import { Notification, INotification } from "./notificationModel"; // Đảm bảo đường dẫn chính xác
 
-export const GetNotificationService = (): Promise<INotification[]> => {
-    return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM notifications`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as INotification[]);
-        });
-    });
+// Lấy tất cả thông báo
+const GetNotificationService = async (): Promise<INotification[]> => {
+    try {
+        return await Notification.find(); // Lấy tất cả thông báo
+    } catch (error) {
+        throw new Error(`Error fetching notifications: ${error}`);
+    }
 };
 
-export const AddNotificationService = (params: {
+// Lấy thông báo theo ID
+const GetNotificationByIdService = async (nof_id: string): Promise<INotification | null> => {
+    try {
+        return await Notification.findOne({ _id: nof_id }); // Tìm thông báo theo ID
+    } catch (error) {
+        throw new Error(`Error fetching notification by ID: ${error}`);
+    }
+};
+
+// Thêm thông báo mới
+const AddNotificationService = async (params: {
     title: string;
     content: string;
-    type: string;
+    type: 'new' | 'done' | 'repaired' | 'ingredient' | 'failed';
     link: string;
-}) => {
+}): Promise<INotification> => {
     const { title, content, type, link } = params;
-    const item = {
-        title: title,
-        content: content,
-        type: type,
-        isRead: "0",
-        link: link,
-        time: new Date().toISOString().slice(0, 19).replace("T", " "),
-    };
-    return new Promise((resolve, reject) => {
-        let query = `INSERT INTO notifications SET ?`;
-        db.query(query, item, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result);
-        });
+
+    const newNotification = new Notification({
+        title,
+        content,
+        type,
+        isRead: false,
+        link,
+        time: new Date(),
     });
+
+    try {
+        return await newNotification.save(); // Lưu thông báo mới
+    } catch (error) {
+        throw new Error(`Error adding notification: ${error}`);
+    }
 };
 
-export const changeIsReadService = (params: {
-    nof_id:number
-}): Promise<INotification[]> => {
+// Thay đổi trạng thái đã đọc của thông báo
+const changeIsReadService = async (params: { nof_id: string }): Promise<INotification | null> => {
     const { nof_id } = params;
-    return new Promise((resolve, reject) => {
-        const query = `UPDATE notifications SET isRead = 1 WHERE nof_id = ${nof_id}`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as INotification[]);
-        });
+
+    try {
+        const updatedNotification = await Notification.findByIdAndUpdate(
+            nof_id,
+            { isRead: true },
+            { new: true }
+        );
+
+        if (!updatedNotification) {
+            throw new Error("Notification not found");
+        }
+
+        return updatedNotification; // Trả về thông báo đã cập nhật
+    } catch (error) {
+        throw new Error(`Error updating notification: ${error}`);
     }
-    );
-}
+};
+
+export { 
+    GetNotificationService, 
+    GetNotificationByIdService, 
+    AddNotificationService, 
+    changeIsReadService 
+};

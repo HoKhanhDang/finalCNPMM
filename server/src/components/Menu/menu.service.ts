@@ -1,29 +1,24 @@
-import db from "../../config/database.config";
-const AddMenuService = (menu: {
+import { MenuItem } from './menuModel'; // Đảm bảo đường dẫn chính xác
+
+// Thêm món ăn vào menu
+const AddMenuService = async (menu: {
     title: string;
     price: number;
     description: string;
     image: string;
     category: string;
 }) => {
-    return new Promise((resolve, reject) => {
-        const { title, price, description, image, category } = menu;
-        const query = `INSERT INTO menuitems (title, price, description, image, category) VALUES (?, ?, ?, ?,?)`;
-        db.query(
-            query,
-            [title, price, description, image, category],
-            (err, result) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            }
-        );
-    });
+    try {
+        const newMenuItem = new MenuItem(menu);
+        const result = await newMenuItem.save();
+        return result;
+    } catch (err) {
+        throw new Error(`Error adding menu item: ${err}`);
+    }
 };
 
-const UpdateMenuService = (menu: {
+// Cập nhật món ăn trong menu
+const UpdateMenuService = async (menu: {
     title: string;
     price: number;
     description: string;
@@ -31,152 +26,120 @@ const UpdateMenuService = (menu: {
     category: string;
     id: number;
 }) => {
-    return new Promise((resolve, reject) => {
-        const { title, price, description, image, category, id } = menu;
-        const query = `UPDATE menuitems SET title=?, price=?, description=?, image=?, category=? WHERE item_id=?`;
-        db.query(
-            query,
-            [title, price, description, image, category, id],
-            (err, result) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(result);
-                }
-            }
-        );
-    });
+    const { id, ...updateData } = menu;
+    try {
+        const result = await MenuItem.findByIdAndUpdate(id, updateData, { new: true });
+        return result;
+    } catch (err) {
+        throw new Error(`Error updating menu item: ${err}`);
+    }
 };
 
-const DeleteMenuService = (id: number) => {
-    return new Promise((resolve, reject) => {
-        const query = `DELETE FROM menuitems WHERE item_id=?`;
-        db.query(query, [id], (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
+// Xóa món ăn trong menu
+const DeleteMenuService = async (id: number) => {
+    try {
+        const result = await MenuItem.findByIdAndDelete(id);
+        return result;
+    } catch (err) {
+        throw new Error(`Error deleting menu item: ${err}`);
+    }
 };
-const GetMenuByParamsService = (params: {
+
+// Lấy menu theo tham số
+const GetMenuByParamsService = async (params: {
     page: number;
     limit: number;
-    title: string;
-    category: string;
-    availability: string;
+    title?: string;
+    category?: string;
+    availability?: boolean;
 }) => {
     const { page, limit, title, category, availability } = params;
+    const query: any = {};
+
+    if (title) {
+        query.title = { $regex: title, $options: 'i' }; // Tìm kiếm không phân biệt chữ hoa chữ thường
+    }
+    if (category) {
+        query.category = category;
+    }
+    if (availability !== undefined) {
+        query.availability = availability;
+    }
+
     const numberPage = (page - 1) * limit;
-
-    let query = `SELECT * FROM menuitems `;
-    let queryParams = [];
-    if (title || category || availability !== undefined) {
-        let conditions = [];
-
-        if (title) {
-            conditions.push(`title LIKE ?`);
-            queryParams.push(`%${title}%`);
-        }
-        if (category) {
-            conditions.push(`category = ?`);
-            queryParams.push(category);
-        }
-        if (availability !== undefined) {
-            conditions.push(`availability = ?`);
-            queryParams.push(availability);
-        }
-
-        query += `WHERE ` + conditions.join(" AND ");
+    
+    try {
+        const result = await MenuItem.find(query)
+            .skip(numberPage)
+            .limit(limit);
+        return result;
+    } catch (err) {
+        throw new Error(`Error getting menu items: ${err}`);
     }
-    query += ` LIMIT ? OFFSET ?`;
-    queryParams.push(limit, numberPage);
-
-    return new Promise((resolve, reject) => {
-        db.query(query, queryParams, (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
 };
 
-const GetSumMenuByParamsService = (params: {
-    title: string;
-    category: string;
-    availability: string;
+const GetAllMenuService = async () => {
+    try {
+        const result = await MenuItem.find(); // Lấy tất cả món ăn
+        return {
+            message: "All menu items fetched successfully",
+            data: result,
+        };
+    } catch (error) {
+        throw new Error(`Error getting all menu items: ${error}`);
+    }
+};
+
+// Lấy tổng số món ăn theo tham số
+const GetSumMenuByParamsService = async (params: {
+    title?: string;
+    category?: string;
+    availability?: boolean;
 }) => {
-    const { title, category, availability } = params;
-    // const query = `SELECT Count(*) as Sum FROM menuitems ${
-    //     title || category || availability ? `WHERE ` : ` `
-    // }  ${title ? `title like '%${title}%' AND ` : ""}  ${
-    //     category ? `category='${category}' AND ` : ""
-    // }  ${
-    //     availability ? `availability='${availability}'` : ""
-    // } LIMIT 10000 OFFSET 0`;
-    let query = `SELECT Count(*) as Sum FROM menuitems `;
-    let queryParams = [];
-    if (title || category || availability !== undefined) {
-        const conditions = [];
-        if (title) {
-            conditions.push(`title LIKE ?`);
-            queryParams.push(`%${title}%`);
-        }
-        if (category) {
-            conditions.push(`category = ?`);
-            queryParams.push(category);
-        }
-        if (availability !== undefined) {
-            conditions.push(`availability = ?`);
-            queryParams.push(availability);
-        }
-        query += `WHERE ` + conditions.join(" AND ");
+    const query: any = {};
+
+    if (params.title) {
+        query.title = { $regex: params.title, $options: 'i' };
     }
-    query += ` LIMIT 10000 OFFSET 0`;
+    if (params.category) {
+        query.category = params.category;
+    }
+    if (params.availability !== undefined) {
+        query.availability = params.availability;
+    }
 
-    return new Promise((resolve, reject) => {
-        db.query(query, queryParams, (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
+    try {
+        const count = await MenuItem.countDocuments(query);
+        return { Sum: count };
+    } catch (err) {
+        throw new Error(`Error getting menu item count: ${err}`);
+    }
 };
 
-const GetMenuByIdService = (id: number) => {
-    return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM menuitems WHERE item_id=?`;
-        db.query(query, [id], (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
+// Lấy món ăn theo ID
+const GetMenuByIdService = async (id: string) => {
+    try {
+        const result = await MenuItem.findOne({ _id: id });;
+        return result;
+    } catch (err) {
+        throw new Error(`Error getting menu item by ID: ${err}`);
+    }
 };
 
-const GetSpecialMenuService = () => {
-    return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM menuitems WHERE category="Special"`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
-}
+// Lấy món ăn đặc biệt
+const GetSpecialMenuService = async () => {
+    try {
+        const result = await MenuItem.find({ category: "Special" });
+        return result;
+    } catch (err) {
+        throw new Error(`Error getting special menu items: ${err}`);
+    }
+};
 
 export {
     AddMenuService,
     UpdateMenuService,
+    GetAllMenuService,
     DeleteMenuService,
     GetMenuByParamsService,
     GetSumMenuByParamsService,

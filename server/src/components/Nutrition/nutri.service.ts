@@ -1,66 +1,60 @@
-import db from "../../config/database.config";
+import { NutritionalInfo, INutritionalInfo } from './nutriModel'; // Đảm bảo đường dẫn chính xác
 
-const AddNutritionService = (nutrition: {
-    item_id: number;
+// Thêm thông tin dinh dưỡng
+const AddNutritionService = async (nutrition: {
+    item_id?: number; // Optional nếu có thể là null
     calories: number;
     carbs: number;
     proteins: number;
     fats: number;
-})=>{
-    const { item_id, calories, carbs, proteins, fats } = nutrition;
-    const query = `INSERT INTO nutritionalinfo (item_id, calories, carbs, proteins, fats) VALUES (?, ?, ?, ?, ?)`;
+}): Promise<INutritionalInfo> => {
+    const newNutrition = new NutritionalInfo(nutrition);
+    
+    try {
+        return await newNutrition.save(); // Lưu thông tin dinh dưỡng vào MongoDB
+    } catch (error) {
+        throw new Error(`Error adding nutrition: ${error}`);
+    }
+};
 
-    return new Promise((resolve, reject) => {
-        db.query(query, [item_id, calories, carbs, proteins, fats], (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
-
-}
-
-const UpdateNutritionService = (nutrition: {
-    nutritional_info_id: number;
+// Cập nhật thông tin dinh dưỡng
+const UpdateNutritionService = async (nutrition: {
+    nutritional_info_id: string; // Sử dụng string cho ObjectId
     calories: number;
     carbs: number;
     proteins: number;
     fats: number;
-
-})=>{
+}): Promise<INutritionalInfo | null> => {
     const { nutritional_info_id, calories, carbs, proteins, fats } = nutrition;
-    const query = `UPDATE nutritionalinfo SET calories=?, carbs=?, proteins=?, fats=? WHERE nutritional_info_id=?`;
 
-    return new Promise((resolve, reject) => {
-        db.query(query, [ calories, carbs, proteins, fats, nutritional_info_id], (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
+    try {
+        const updatedNutrition = await NutritionalInfo.findByIdAndUpdate(
+            nutritional_info_id,
+            { calories, carbs, proteins, fats },
+            { new: true } // Trả về tài liệu đã cập nhật
+        );
 
-}
+        if (!updatedNutrition) {
+            throw new Error("Nutrition information not found");
+        }
 
-const GetNutritionService = (item_id: number)=>{
-    const query = `SELECT * FROM nutritionalinfo WHERE item_id=?`;
+        return updatedNutrition; // Trả về thông tin dinh dưỡng đã cập nhật
+    } catch (error) {
+        throw new Error(`Error updating nutrition: ${error}`);
+    }
+};
 
-    return new Promise((resolve, reject) => {
-        db.query(query, [item_id], (err, result) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
-}
+// Lấy thông tin dinh dưỡng theo item_id
+const GetNutritionService = async (item_id: string): Promise<INutritionalInfo | null> => {
+    try {
+        return await NutritionalInfo.findOne({ _id: item_id }); // Lấy thông tin dinh dưỡng theo item_id
+    } catch (error) {
+        throw new Error(`Error fetching nutrition: ${error}`);
+    }
+};
 
 export {
     AddNutritionService,
     UpdateNutritionService,
     GetNutritionService
-}
+};

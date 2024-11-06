@@ -1,224 +1,193 @@
-import db from "../../config/database.config";
+import { Order, IOrder, IOrderItem, OrderItem } from './orderModel';
 import { convertDay } from "../../utils/Order";
-import { IOrder, IOrderItem } from "./order.interface";
 
-export const CreateOrderService = (params: {
-    user_id: number;
-    total_price: number;
-    message?: string;
-    payment_method: string;
-    address: string;
-    lng?: number;
-    lat?: number;
-}) => {
-    const data = {
+const CreateOrderService = async (params: {
+    user_id: number; // ID người dùng
+    total_price: number | null; // Tổng giá đơn hàng
+    message?: string; // Tin nhắn kèm theo
+    payment_method: string | null; // Phương thức thanh toán
+    address: string | null; // Địa chỉ giao hàng
+    lng?: number | null; // Kinh độ
+    lat?: number | null; // Vĩ độ
+}): Promise<IOrder> => {
+    const data = new Order({
+        order_id: await getNextOrderId(), // Lấy ID đơn hàng tiếp theo
         user_id: params.user_id,
         total_price: params.total_price,
-        message: params.message,
+        message: params.message || null,
         address: params.address,
         payment_method: params.payment_method,
-        create_at: new Date(),
-        status: "Pending",
-        lng: params.lng,
-        lat: params.lat,
-    };
-    return new Promise((resolve, reject) => {
-        const query = `INSERT INTO orders SET ?`;
-        db.query(query, data, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result);
-        });
-    });
+        create_at: new Date(), // Thời gian tạo đơn hàng
+        status: "Pending", // Trạng thái ban đầu
+        lng: params.lng || null,
+        lat: params.lat || null,
+        delivery_time: null,
+        shipper_id: null,
+});
+
+    const order = new Order(data);
+    return await order.save();
 };
 
-export const AddOrderItemService = (params: {
-    order_id: number;
-    item_id: number;
-    quantity: number;
-}) => {
-    const { order_id, item_id, quantity } = params;
-    return new Promise((resolve, reject) => {
-        const query = `INSERT INTO orderitems SET ?`;
-        db.query(query, { order_id, item_id, quantity }, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result);
-        });
+const AddOrderItemService = async (params: {
+    order_id: number; // ID đơn hàng
+    item_id: number; // ID món
+    quantity: number; // Số lượng
+    price: number; // Giá của món
+    title: string; // Tên món
+    image: string; // Hình ảnh món
+}): Promise<IOrderItem> => {
+    const { order_id, item_id, quantity, price, title, image } = params;
+    const orderItem = new OrderItem({
+        order_id,
+        item_id,
+        quantity,
+        price,
+        title,
+        image,
     });
+    const newOrderItem = new OrderItem(orderItem);
+    return await newOrderItem.save();
 };
 
-export const GetSumOrderService = (params: {
-    search: string;
-    status: string;
-    create_at: string;
-    history: string;
-}) => {
+const GetSumOrderService = async (params: {
+    search?: string; // Tìm kiếm theo ID hoặc tên
+    status?: string; // Trạng thái đơn hàng
+    create_at?: string; // Ngày tạo đơn hàng
+    history?: string; // Lịch sử đơn hàng
+}): Promise<number> => {
     const { search, status, create_at, history } = params;
-    return new Promise((resolve, reject) => {
-        let query = `SELECT Count(*) as Sum FROM orders WHERE 1=1 `;
-        if (search) {
-            query += `AND (customer_id LIKE '%${search}%' or order_id like '%${search}%') `;
+    const query: any = {};
+    
+    if (search) {
+        query.$or = [
+            { user_id: { $regex: search, $options: 'i' } },
+            { order_id: { $regex: search, $options: 'i' } }
+        ];
+    }
+    
+    if (history !== "1") {
+        if (status) {
+            query.status = { $regex: status, $options: 'i' };
         }
-        if (history !== "1") {
-            if (status) {
-                query += `AND status LIKE '%${status}%' `;
-            }
-            query += `AND (status not LIKE 'Cancelled' and status not LIKE 'Successfully') `;
-        } else {
-            query += `AND status LIKE 'Successfully' or status LIKE 'Cancelled' `;
-        }
-        if (create_at) {
-            query += `AND create_at LIKE '%${create_at}%' `;
-        }
-        query += ` Limit 100000 OFFSET 0`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result);
-        });
-    });
+        query.status = { $nin: ['Cancelled', 'Successfully'] };
+    } else {
+        query.status = { $in: ['Successfully', 'Cancelled'] };
+    }
+    
+    if (create_at) {
+        query.create_at = { $gte: new Date(convertDay(create_at) || "") };
+    }
+    
+    return await Order.countDocuments(query);
 };
 
-export const GetOrderByParamsService = (params: {
-    search: string;
-    status: string;
-    create_at: string;
-    limit: number;
-    page: number;
-    history: string;
+const GetOrderByParamsService = async (params: {
+    search?: string; // Tìm kiếm
+    status?: string; // Trạng thái
+    create_at?: string; // Ngày tạo
+    limit: number; // Giới hạn số lượng trả về
+    page: number; // Trang
+    history?: string; // Lịch sử
 }): Promise<IOrder[]> => {
-    return new Promise((resolve, reject) => {
-        const { search, status, create_at, limit, page, history } = params;
-        const time = convertDay(create_at) || "";
-
-        let query = `SELECT * FROM orders WHERE 1=1 `;
-        if (search) {
-            query += `AND (user_id LIKE '%${search}%' or order_id like '%${search}%') `;
+    const { search, status, create_at, limit, page, history } = params;
+    const query: any = {};
+    
+    if (search) {
+        query.$or = [
+            { user_id: { $regex: search, $options: 'i' } },
+            { order_id: { $regex: search, $options: 'i' } }
+        ];
+    }
+    
+    if (history !== "1") {
+        if (status) {
+            query.status = { $regex: status, $options: 'i' };
         }
-        if (history !== "1") {
-            if (status) {
-                query += `AND status LIKE '%${status}%' `;
-            }
-            query += `AND ( status not LIKE 'Cancelled' and status not LIKE 'Successfully') `;
-        } else {
-            query += `AND status LIKE 'Successfully' or status LIKE 'Cancelled' `;
-        }
-        if (create_at) {
-            query += `AND create_at >= '${time}' `;
-        }
-
-        query += ` Limit ${limit} Offset ${limit * (page - 1)}`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as IOrder[]);
-        });
-    });
+        query.status = { $nin: ['Cancelled', 'Successfully'] };
+    } else {
+        query.status = { $in: ['Successfully', 'Cancelled'] };
+    }
+    
+    if (create_at) {
+        query.create_at = { $gte: new Date(create_at) };
+    }
+    
+    return await Order.find(query).limit(limit).skip(limit * (page - 1));
 };
 
-export const GetOrderByCustomerIdService = (params: {
-    user_id: number;
+const GetOrderByCustomerIdService = async (params: {
+    user_id: number; // ID người dùng
 }): Promise<IOrder[]> => {
     const { user_id } = params;
-    return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM orders WHERE user_id = ${user_id} ORDER BY create_at DESC`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as IOrder[]);
-        });
-    });
+    return await Order.find({ user_id }).sort({ create_at: -1 });
 };
 
-export const GetOrderByIdService = (params: {
-    order_id: number;
-}): Promise<IOrder[]> => {
-    const { order_id } = params;
-    return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM orders WHERE order_id = ${order_id}`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as IOrder[]);
-        });
-    });
+const GetOrderByIdService = async (order_id: number): Promise<IOrderItem[] | null> => {
+    return await OrderItem.find({ order_id });
 };
 
-export const GetOrderItemsService = (params: {
-    order_id: number;
+const GetOrderItemsService = async (params: {
+    order_id: number; // ID đơn hàng
 }): Promise<IOrderItem[]> => {
     const { order_id } = params;
-    return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM orderitems join menuitems on orderitems.item_id = menuitems.item_id WHERE order_id = ${order_id}`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as IOrderItem[]);
-        });
-    });
+    return await OrderItem.find({ order_id });
 };
 
-export const ChangeStatusService = (params: {
-    order_id: number;
-    status: string;
-    delivery_time?: string;
-    user_id?: number;
-}) => {
-    const { order_id, user_id, status, delivery_time } = params;
-    return new Promise((resolve, reject) => {
-        let query = `UPDATE orders SET status = '${status}'`;
-        if (delivery_time) {
-            query += `, delivery_time = NOW() `;
-        }
-        if (user_id) {
-            query += `, shipper_id = ${user_id} `;
-        }
-        query += ` WHERE order_id = ${order_id}`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result);
-        });
-    });
+const ChangeStatusService = async (params: {
+    order_id: number; // ID đơn hàng
+    status: 'Pending' | 'Processing' | 'Packed' | 'Delivering' | 'Delivered' | 'Successfully' | 'Cancelled'; // Trạng thái mới
+    delivery_time?: Date | null; // Thời gian giao hàng
+    user_id?: number | null; // ID người giao hàng
+}): Promise<IOrder | null> => {
+    const { order_id, status, delivery_time, user_id } = params;
+    const updateData: any = { status };
+
+    if (delivery_time) {
+        updateData.delivery_time = delivery_time;
+    }
+    
+    if (user_id !== undefined) {
+        updateData.shipper_id = user_id; // Giả sử user_id là số
+    }
+
+    return await Order.findOneAndUpdate({ order_id }, updateData, { new: true });
 };
 
-export const CancelOrderService = (params: {
-    order_id: number;
-    status: string;
-    message: string;
-}) => {
-    const { order_id, status, message } = params;
-    return new Promise((resolve, reject) => {
-        const query = `UPDATE orders SET status = '${status}', message= '${message}' WHERE order_id = ${order_id}`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result);
-        });
-    });
+const CancelOrderService = async (params: {
+    order_id: number; // ID đơn hàng
+    message: string; // Tin nhắn kèm theo
+}): Promise<IOrder | null> => {
+    const { order_id, message } = params;
+    return await Order.findOneAndUpdate(
+        { order_id },
+        { status: 'Cancelled', message },
+        { new: true }
+    );
 };
 
-export const GetShipperOrderService = (params: {
-    shipper_id: number;
+const GetShipperOrderService = async (params: {
+    shipper_id: number; // ID người giao hàng
 }): Promise<IOrder[]> => {
     const { shipper_id } = params;
-    return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM orders WHERE status = 'Delivering' and shipper_id = ${shipper_id}`;
-        db.query(query, (err, result) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(result as IOrder[]);
-        });
-    });
+    return await Order.find({ status: 'Delivering', shipper_id });
+};
+
+// Helper function to get the next order ID
+async function getNextOrderId(): Promise<number> {
+    const lastOrder = await Order.findOne().sort({ order_id: -1 });
+    return lastOrder ? lastOrder.order_id + 1 : 1; // Bắt đầu từ 1 nếu không có đơn hàng nào
+}
+
+export {
+    CreateOrderService,
+    AddOrderItemService,
+    GetSumOrderService,
+    GetOrderByParamsService,
+    GetOrderByCustomerIdService,
+    GetOrderByIdService,
+    GetOrderItemsService,
+    ChangeStatusService,
+    CancelOrderService,
+    GetShipperOrderService,
 };
