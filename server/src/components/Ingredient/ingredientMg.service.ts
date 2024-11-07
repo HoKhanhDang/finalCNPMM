@@ -53,11 +53,11 @@ const GetIngredientByParamsService = async (params: {
   page?: number;
   limit?: number;
 }): Promise<IIngredient[]> => {
-  const { search, is_available, page = 1, limit = 10 } = params;
+  const { search, is_available, page = 1, limit = 3 } = params;
   const query: any = {};
 
   if (search) {
-    query.$or = [{ name: new RegExp(search, "i") }, { _id: search }];
+    query.$or = [{ name: new RegExp(search, "i") }];
   }
 
   if (is_available !== undefined) {
@@ -82,12 +82,14 @@ const GetSumIngredientByParamsService = async (params: {
   const query: any = {};
 
   if (search) {
-    query.$or = [{ name: new RegExp(search, "i") }, { _id: search }];
+    query.$or = [{ name: new RegExp(search, "i") }];
   }
 
   if (is_available !== undefined) {
     query.is_available = is_available === "true";
   }
+
+  console.log(is_available);
 
   try {
     return await Ingredient.countDocuments(query);
