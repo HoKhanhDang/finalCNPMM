@@ -21,8 +21,8 @@ router.delete("/", DeleteMenu);
 router.get("/:id", GetMenuById);
 router.get("/", GetMenuByParams);
 router.get("/all", GetAllMenu);
-router.get("/sum", GetSumMenuByParams);
-router.get("/special-menu", GetSpecialMenu);
+router.get("/num/sum", GetSumMenuByParams);
+router.get("/mpre/special-menu", GetSpecialMenu);
 
 router.post("/image", uploadCloud.single("image"), StaffController.UploadImage);
 export default router;
