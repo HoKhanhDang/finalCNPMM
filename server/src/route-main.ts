@@ -14,6 +14,7 @@ import notificationRouter from "./components/Notification/notificationRoutes";
 import shiftRouter from "./components/Shift/shiftRoutes";
 import dashboardRouter from "./components/Dashboard/dashboardRoutes";
 import vnpayRouter from "./components/Payment/vnpayRoutes";
+import menuitemingredientsRouter from "./components/MenuItemIngredient/menuitemingredientsRoutes";
 
 const initRoutes = (app: any) => {
   app.use("/api/user", userRouter);
@@ -27,6 +28,7 @@ const initRoutes = (app: any) => {
   app.use("/api/customer", customerRouter);
   app.use("/api/chart", dashboardRouter);
   app.use("/api/vnpay", vnpayRouter);
+  app.use("/api/menuitemingredients", menuitemingredientsRouter);
 };
 
 export default initRoutes;
