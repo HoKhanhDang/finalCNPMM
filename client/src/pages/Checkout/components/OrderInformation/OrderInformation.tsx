@@ -9,7 +9,7 @@ import {
     AddOrderItem,
     CreateOrder,
     CreateVNPayLink,
-} from "../../checkout.service";
+} from "../../../../utils/checkout/checkout.service";
 import Loading from "../../../../components/loading/Loading";
 
 interface OrderInformationProps {}

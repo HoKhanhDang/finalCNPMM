@@ -3,7 +3,15 @@ import axios from "../../axios";
 export const getSumStaffAPI = async (data: any) => {
     return await axios({
         method: "GET",
-        url: `/staff/getSumStaff`,
+        url: `/user/admin/sum`,
+        params: data,
+    });
+};
+
+export const getStaffByParamsAPI = async (data: any) => {
+    return await axios({
+        method: "GET",
+        url: `/user/admin`,
         params: data,
     });
 };
@@ -11,47 +19,36 @@ export const getSumStaffAPI = async (data: any) => {
 export const getStaffByIdAPI = async (id: any) => {
     return await axios({
         method: "GET",
-        url: `/staff/getStaffById`,
-        params: { _id: id },
-    });
-};
-
-export const getStaffByParamsAPI = async (data: any) => {
-    return await axios({
-        method: "GET",
-        url: `/staff/getStaffByParams`,
-        params: data,
+        url: `/user/admin/${id}`,
     });
 };
 
 export const getAllStaffAPI = async () => {
     return await axios({
         method: "GET",
-        url: "/staff/getAllStaff",
+        url: "/user/admin/all",
     });
 };
 
 export const deleteStaffAPI = async (id: any) => {
     return await axios({
         method: "DELETE",
-        url: `/staff/deleteStaff`,
-        params: { user_id: id },
+        url: `/user/admin/${id}`,
     });
 };
 
 export const updateStaffAPI = async (data: any) => {
     return await axios({
         method: "PUT",
-        url: "/staff/updateStaff",
-        params: data,
+        url: `/user/admin/${data.user_id}`,
+        data,
     });
 };
-
 
 export const updatePermissionAPI = async (data: any) => {
     return await axios({
         method: "PUT",
-        url: "/staff/updatePermission",
-        params: data,
+        url: `/user/admin/permission/${data.user_id}`,
+        data,
     });
-}
+};

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { AddOrderItem, CreateOrder } from "../Checkout/checkout.service";
+import { AddOrderItem, CreateOrder } from "../../utils/checkout/checkout.service";
 
 const VnpayReturn: React.FC = () => {
     const location = useLocation();
