@@ -69,22 +69,3 @@ export const IncreaseViewAPI = async (
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-// export const IncreaseViewAPI = async (req: Request, res: Response) => {
-//   const create_at = new Date();
-//   try {
-//     const query = `insert into Views (create_at) values (now())`;
-
-//     db.query(query, create_at, (err, result) => {
-//       if (err) {
-//         return res.status(500).json({ message: "Internal server error" });
-//       }
-//       return res.status(200).json({
-//         message: "View updated successfully",
-//         result,
-//       });
-//     });
-//   } catch (err) {
-//     return res.status(500).json({ message: "Internal server error" });
-//   }
-// };

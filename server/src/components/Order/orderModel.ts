@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IOrder extends Document {
   order_id: number;
@@ -11,7 +11,15 @@ export interface IOrder extends Document {
   lat: number | null;
   message: string | null;
   address: string | null;
-  status: 'Pending' | 'Processing' | 'Packed' | 'Delivering' | 'Delivered' | 'Successfully' | 'Cancelled' | null;
+  status:
+    | "Pending"
+    | "Processing"
+    | "Packed"
+    | "Delivering"
+    | "Delivered"
+    | "Successfully"
+    | "Cancelled"
+    | null;
   shipper_id: number | null;
 }
 
@@ -26,12 +34,20 @@ const OrderSchema = new Schema<IOrder>({
   lat: { type: Number, default: null },
   message: { type: String, default: null },
   address: { type: String, default: null },
-  status: { 
-    type: String, 
-    enum: ['Pending', 'Processing', 'Packed', 'Delivering', 'Delivered', 'Successfully', 'Cancelled'], 
-    default: null 
+  status: {
+    type: String,
+    enum: [
+      "Pending",
+      "Processing",
+      "Packed",
+      "Delivering",
+      "Delivered",
+      "Successfully",
+      "Cancelled",
+    ],
+    default: null,
   },
-  shipper_id: { type: Number, default: null }
+  shipper_id: { type: Number, default: null },
 });
 
 // Define the interface for Order Item
@@ -51,11 +67,11 @@ const OrderItemSchema: Schema = new Schema<IOrderItem>({
   quantity: { type: Number, required: true },
   price: { type: Number, required: true },
   title: { type: String, required: true },
-  image: { type: String, required: true }
+  image: { type: String, required: true },
 });
 
 // Create models from schemas
-const Order = mongoose.model<IOrder>('Order', OrderSchema);
-const OrderItem = mongoose.model<IOrderItem>('OrderItem', OrderItemSchema);
+const Order = mongoose.model<IOrder>("Order", OrderSchema);
+const OrderItem = mongoose.model<IOrderItem>("OrderItem", OrderItemSchema);
 
 export { Order, OrderItem };
