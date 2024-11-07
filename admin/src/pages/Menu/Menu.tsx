@@ -29,12 +29,27 @@ const Menu = () => {
 
     //api paging
     const getSumFood = async () => {
-        const data = {
-            status: params.get("status"),
-            title: params.get("title"),
-        };
-        const res = await getSumFoodAPI(data);
-        setPage(Math.ceil(res.data.data[0].Sum / limit));
+        try {
+            const data = {
+                status: params.get("status"),
+                title: params.get("title"),
+            };
+    
+            // Gọi API để lấy dữ liệu
+            const res = await getSumFoodAPI(data);
+    
+            // Kiểm tra xem dữ liệu trả về có đúng định dạng không
+            if (res && res.data && res.data.data && Array.isArray(res.data.data) && res.data.data.length > 0) {
+                const sum = res.data.data[0].Sum; // Lấy giá trị Sum
+                setPage(Math.ceil(sum / limit)); // Cập nhật trang
+            } else {
+                console.error("Unexpected response structure:", res);
+                setPage(0); // Hoặc xử lý theo cách khác nếu không có dữ liệu
+            }
+        } catch (error) {
+            console.error("Error fetching sum:", error);
+            setPage(0); // Hoặc xử lý theo cách khác nếu có lỗi
+        }
     };
 
     useEffect(() => {  
