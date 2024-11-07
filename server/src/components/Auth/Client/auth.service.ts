@@ -2,13 +2,13 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import { totp } from "otplib";
-import User from "../../user.model";
+import User from "../../User/user.model";
 
 import {
     ILoginResponse,
     IOtpResponse,
     IRegisterResponse,
-} from "./customer.interface";
+} from "../../../types/customer.interface";
 
 const secret_key = "secret_key"; // JWT secret key
 const otpSecretKey = "ahihi"; // OTP secret key

@@ -3,10 +3,7 @@ export const getShipperById = async (id: number) => {
     return await axios(
         {
             method: "GET",
-            url: `/user/shipper`,
-            params: {
-                user_id: id
-            }
+            url: `/user/client/${id}`,
         }
     )
 }

@@ -1,11 +1,11 @@
-import axios from "../../../axios";
+import axios from "../../axios";
 
 export const apiLogin = async (data: any) => {
     try {
         const response = await axios({
             method: "POST",
-            url: "/customer/login",
-            params: data,
+            url: "/auth/client/login",
+            data
         });
         return response;
     } catch (error) {

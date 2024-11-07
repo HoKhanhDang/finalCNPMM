@@ -260,4 +260,4 @@ export default {
     UpdateProfileService,
     UpdateStaffService,
     UpdatePermissionService,
-}
+};
