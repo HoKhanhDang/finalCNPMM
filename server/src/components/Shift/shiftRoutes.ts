@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import  {
+import {
     getShifts,
     addShift,
     deleteShift
@@ -9,6 +9,6 @@ import  {
 
 router.get("/", getShifts);
 router.post("/", addShift);
-router.delete("/", deleteShift);
+router.delete("/:shift_id", deleteShift);
 
 export default router;

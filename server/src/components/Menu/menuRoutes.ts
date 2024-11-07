@@ -4,6 +4,7 @@ import {
     DeleteMenu,
     UpdateMenu,
     GetMenuById,
+    GetAllMenu,
     GetMenuByParams,
     GetSumMenuByParams,
     GetSpecialMenu,
@@ -17,10 +18,11 @@ router.post("/", AddMenu);
 router.put("/", UpdateMenu);
 router.delete("/", DeleteMenu);
 
-router.get("/id", GetMenuById);
+router.get("/:id", GetMenuById);
 router.get("/", GetMenuByParams);
-router.get("/sum", GetSumMenuByParams);
-router.get("/special-menu", GetSpecialMenu);
+router.get("/all", GetAllMenu);
+router.get("/num/sum", GetSumMenuByParams);
+router.get("/mpre/special-menu", GetSpecialMenu);
 
 router.post("/image", uploadCloud.single("image"), StaffController.UploadImage);
 export default router;
