@@ -10,7 +10,6 @@ import {
   GetTotalUserLastMonthService,
   GetTotalViewLastMonthService,
 } from "./dashboard.service";
-import db from "../../config/database.config";
 
 export const GetTotalAllAPI = async (req: Request, res: Response) => {
   try {
@@ -45,6 +44,7 @@ export const GetTotalAllAPI = async (req: Request, res: Response) => {
   }
 };
 
+//Done
 export const IncreaseViewAPI = async (
   req: Request,
   res: Response
