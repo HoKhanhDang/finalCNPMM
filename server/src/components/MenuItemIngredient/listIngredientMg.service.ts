@@ -54,12 +54,9 @@ const GetIngredientFromMenuService = async (ingredient: {
     console.log("Stay here: " + ingredient.item_id);
 
     // Truy vấn và populate các trường cần thiết từ menuitemingredients và ingredients
-    return await MenuItemIngredient.find({ item_id: ingredient.item_id })
-      .select("ingredient_id item_id quantity_required") // Lấy các trường cần thiết từ menuitemingredients
-      .populate({
-        path: "ingredient_id", // Trường ingredient_id trong menuitemingredients sẽ được populate
-        select: "name", // Chỉ lấy trường name từ bảng ingredients
-      });
+    return await MenuItemIngredient.find({
+      item_id: ingredient.item_id,
+    }).select("ingredient_id item_id quantity_required"); // Lấy các trường cần thiết từ menuitemingredients
   } catch (err) {
     throw new Error(`Error fetching ingredients from menu: ${err}`);
   }
