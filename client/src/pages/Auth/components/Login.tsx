@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import InputField from "./InputField";
 import Button from "./Button";
-import { apiLogin } from "../services/login.service";
+import { apiLogin } from "../../../utils/auth/login.service";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { login as reduxLogin } from "../../../redux/slice/user.slice";

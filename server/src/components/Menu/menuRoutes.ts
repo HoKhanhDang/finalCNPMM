@@ -10,7 +10,7 @@ import {
     GetSpecialMenu,
 } from "./menuController";
 import uploadCloud from "../../config/cloudinary.config";
-import StaffController from "../User/Staff/staffController";
+import StaffController from "../User/Admin/adminController";
 
 const router = Router();
 

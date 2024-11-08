@@ -1,12 +1,10 @@
-import db from "../../../../config/database.config";
 import { Request, Response } from "express";
-const jwt = require("jsonwebtoken");
-
-//services
+// Services
 import AuthAdminService from "./auth.service";
 
 const Login = async (req: Request, res: Response) => {
-    let { email, password } = req.query;
+    const { email, password } = req.body;
+
     if (!email || !password) {
         return res
             .status(400)
@@ -38,8 +36,7 @@ const Login = async (req: Request, res: Response) => {
 };
 
 const Register = async (req: Request, res: Response) => {
-    let { email, password, name, phone, username, role, permissions } =
-        req.query;
+    let { email, password, name, phone, username, role, permissions } = req.body;
 
     if (!email || !password || !name || !phone || !username || !role) {
         return res.status(403).json({ message: "Missing required fields" });
@@ -54,7 +51,9 @@ const Register = async (req: Request, res: Response) => {
     } else {
         permissions = ["Manage Profile"];
     }
+    
     const permissionConvert = JSON.stringify(permissions);
+
     try {
         const data = await AuthAdminService.registerUser({
             name: name as string,
@@ -77,7 +76,8 @@ const Register = async (req: Request, res: Response) => {
 };
 
 const changePassword = async (req: Request, res: Response) => {
-    const { email, oldPassword, newPassword } = req.query;
+    const { email, oldPassword, newPassword } = req.body;
+
     if (!email || !oldPassword || !newPassword) {
         return res.status(400).json({ message: "Missing required fields" });
     }

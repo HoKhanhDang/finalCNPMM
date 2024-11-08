@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
-import { loginAPI } from "./authServices";
+import { loginAPI } from "./auth.service";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import path from "../../utils/path";

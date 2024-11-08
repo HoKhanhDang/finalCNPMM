@@ -53,11 +53,11 @@ const GetIngredientByParamsService = async (params: {
   page?: number;
   limit?: number;
 }): Promise<IIngredient[]> => {
-  const { search, is_available, page = 1, limit = 10 } = params;
+  const { search, is_available, page = 1, limit = 3 } = params;
   const query: any = {};
 
   if (search) {
-    query.$or = [{ name: new RegExp(search, "i") }, { _id: search }];
+    query.$or = [{ name: new RegExp(search, "i") }];
   }
 
   if (is_available !== undefined) {
@@ -73,29 +73,34 @@ const GetIngredientByParamsService = async (params: {
   }
 };
 
-// Đếm số lượng nguyên liệu theo tham số
+// Đếm số lượng nguyên liệu theo tham số và trả về đối tượng { Sum: number }
 const GetSumIngredientByParamsService = async (params: {
   search?: string;
   is_available?: string;
-}): Promise<number> => {
+}): Promise<{ Sum: number }[]> => {
   const { search, is_available } = params;
   const query: any = {};
 
+  // Thêm điều kiện tìm kiếm nếu có
   if (search) {
-    query.$or = [{ name: new RegExp(search, "i") }, { _id: search }];
+    query.$or = [{ name: new RegExp(search, "i") }];
   }
 
+  // Thêm điều kiện về trạng thái có sẵn nếu có
   if (is_available !== undefined) {
     query.is_available = is_available === "true";
   }
 
   try {
-    return await Ingredient.countDocuments(query);
+    // Đếm số lượng nguyên liệu thỏa mãn điều kiện
+    const count = await Ingredient.countDocuments(query);
+
+    // Trả về mảng đối tượng chứa trường Sum
+    return [{ Sum: count }];
   } catch (error) {
     throw new Error(`Error counting ingredients: ${error}`);
   }
 };
-
 // Cập nhật nguyên liệu theo ID
 const UpdateIngredientService = async (ingredientData: {
   name: string;
