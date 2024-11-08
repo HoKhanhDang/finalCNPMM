@@ -32,7 +32,7 @@ export default function Staff() {
             search: params.get("title"),
         };
         const rs = await getSumIngredientAPI(data);
-        setTotalPage(Math.ceil(rs?.data?.result[0].Sum / limit));
+        setTotalPage(Math.ceil(rs?.data?.result[0] / limit));
     };
 
     useEffect(() => {
@@ -53,10 +53,10 @@ export default function Staff() {
 
             {/* content */}
             <div className="w-full h-full bg-main-bg col-span-5 row-span-12   ">
-                {isAdd && <FormAdd isOpen={setIsAdd} setIsRender={setIsRender} isRender={isRender}/>}
-               
+                {isAdd && <FormAdd isOpen={setIsAdd} setIsRender={setIsRender} isRender={isRender} />}
+
                 <FilterBar setIsAdd={setIsAdd} />
-                <ListIngredients isRender={isRender}/>
+                <ListIngredients isRender={isRender} />
                 <PagingBar totalPage={totalPage} />
             </div>
         </div>
