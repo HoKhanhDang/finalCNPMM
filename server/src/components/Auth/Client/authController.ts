@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 
-import AuthClientService from "./customer.service";
+import AuthClientService from "./auth.service";
 
-// Controller cho việc đăng nhập
+// Controller for login
 const loginController = async (req: Request, res: Response) => {
-    const { email, password } = req.query;
-    console.log(email, password);
+    const { email, password } = req.body;
+
     if (!email || !password) {
         return res
             .status(400)
@@ -20,9 +20,9 @@ const loginController = async (req: Request, res: Response) => {
     }
 };
 
-// Controller cho việc yêu cầu OTP
+// Controller for OTP request
 const requestOtpController = async (req: Request, res: Response) => {
-    const { email } = req.query;
+    const { email } = req.body;
 
     if (!email) {
         return res
@@ -42,9 +42,9 @@ const requestOtpController = async (req: Request, res: Response) => {
     }
 };
 
-// Controller cho việc xác minh OTP
+// Controller for OTP verification
 const verifyOtpController = (req: Request, res: Response) => {
-    const { otp, email } = req.query;
+    const { otp, email } = req.body;
 
     if (!otp || !email) {
         return res
@@ -64,10 +64,11 @@ const verifyOtpController = (req: Request, res: Response) => {
     return res.status(200).json({ message: "OTP verified successfully!" });
 };
 
-// Controller cho việc đăng ký
+// Controller for registration
 const registerController = async (req: Request, res: Response) => {
-    const { name, email, password } = req.query;
+    const { name, email, password } = req.body;
     const create_at = new Date();
+
     if (!name || !email || !password) {
         return res
             .status(400)

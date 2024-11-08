@@ -2,7 +2,7 @@ import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
-import { registerAPI } from "./authServices";
+import { registerAPI } from "./auth.service";
 import axios, { AxiosResponse } from "axios";
 //icons
 import { IoArrowBack } from "react-icons/io5";

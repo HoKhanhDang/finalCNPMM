@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import CustomerService from "./customer.service";
+import CustomerService from "./client.service";
 
 const GetShipper = async (req: Request, res: Response) => {
     const { user_id } = req.query;
@@ -23,14 +23,14 @@ const GetShipper = async (req: Request, res: Response) => {
 };
 
 const GetUserById = async (req: Request, res: Response) => {
-    const { _id } = req.query;
-    if (!_id) {
+    const { user_id } = req.params;
+    if (!user_id) {
         return res.status(400).json({ message: "ID is required!" });
     }
 
     try {
         const result = await CustomerService.GetUserByIdService({
-            user_id: parseInt(_id as string),
+            user_id: parseInt(user_id as string),
         });
         res.status(200).json({
             message: result.message,
@@ -41,14 +41,17 @@ const GetUserById = async (req: Request, res: Response) => {
     }
 };
 const updateStatus = async (req: Request, res: Response) => {
-    const { _id, status } = req.query;
-    if (!_id || !status) {
+    const { user_id } = req.params;
+    const {status } = req.body;
+    console.log(user_id, status);
+
+    if (!user_id || !status) {
         return res.status(400).json({ message: "ID and status are required!" });
     }
 
     try {
         const result = await CustomerService.UpdateStatusService({
-            user_id: parseInt(_id as string),
+            user_id: parseInt(user_id as string),
             status: status as string,
         });
         res.status(200).json({

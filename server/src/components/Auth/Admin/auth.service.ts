@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt";
-import User from "../../user.model";
-import { IUser } from "../../user.model";
+import User from "../../User/user.model";
+import { IUser } from "../../User/user.model";
 
 import {
     generateToken,
     generateRefreshToken,
-} from "../../../../middlewares/jwt";
+} from "../../../middlewares/jwt";
 
 const loginUser = async (
     email: string,

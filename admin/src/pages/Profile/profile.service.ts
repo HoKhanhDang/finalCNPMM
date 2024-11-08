@@ -3,31 +3,31 @@ import axios from "../../axios";
 export const changePassword = async (data: any) => {
     return await axios({
         method: "PUT",
-        url: `/user/changePassword`,
-        params: data,
+        url: `/auth/changePassword`,
+        data,
     });
 };
+
 
 export const getStaffByIdAPI = async (id: any) => {
     return await axios({
         method: "GET",
-        url: `/staff/getStaffById`,
-        params: { _id: id },
+        url: `/user/admin/${id}`,
     });
 };
 
 export const editUserAPI = async (data: any) => {
     return await axios({
         method: "PUT",
-        url: `/staff/updateProfile`,
-        params: data,
+        url: `/user/admin/${data.id}`,
+        data,
     });
 };
 
 export const uploadImageAPI = async (data: any) => {
     return await axios({
         method: "POST",
-        url: `/staff/uploadImage`,
+        url: `/user/image`,
         data: data,
     });
 }

@@ -12,7 +12,7 @@ import {
     apiRegister,
     sendEmail,
     verifyEmail,
-} from "../services/regiser.service";
+} from "../../../utils/auth/regiser.service";
 interface RegisterProps {
     // Add any props if needed
 }
