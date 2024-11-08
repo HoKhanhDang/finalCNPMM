@@ -33,9 +33,11 @@ const GetIngredientByParams = async (req: Request, res: Response) => {
       page: Number(page),
       limit: Number(limit),
     });
-    return res
-      .status(200)
-      .json({ message: "Ingredients fetched successfully", result });
+
+    return res.status(200).json({
+      message: "Ingredients fetched successfully",
+      result, // result là mảng chứa đối tượng { Sum: total }
+    });
   } catch (err) {
     return res.status(500).json({ message: "Internal server error" });
   }
