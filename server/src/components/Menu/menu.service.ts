@@ -57,7 +57,7 @@ const GetMenuByParamsService = async (params: {
     const query: any = {};
 
     if (title) {
-        query.title = { $regex: title, $options: 'i' }; // Tìm kiếm không phân biệt chữ hoa chữ thường
+        query.title = { $regex: title, $options: 'i' };
     }
     if (category) {
         query.category = category;

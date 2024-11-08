@@ -9,20 +9,22 @@ import {
     GetOrderItemsAPI,
     ChangeStatusAPI,
     CancelOrderAPI,
+    GetOrderByIdAPI,
     GetShipperOrderAPI,
     AddOrderItemsAPI,
-    GetOrderByIdAPI
+    GetOrderDetailByIdAPI
 } from "./orderController";
 
 router.post("/", CreateOrderAPI); 
 router.post("/items", AddOrderItemsAPI); 
 
-router.get("/sum", GetSumOrderAPI); 
-router.get("/", GetOrderByParamsAPI); 
+router.get("/detail/items", GetOrderItemsAPI);
+router.get("/sum", GetSumOrderAPI);
+router.get("/", GetOrderByParamsAPI);
+router.get("/:id", GetOrderByIdAPI);
 router.get("/customer/:customer_id", GetOrderByCustomerIdAPI); 
-router.get("/orderDetail/:order_id", GetOrderByIdAPI); 
-router.get("/items", GetOrderItemsAPI); 
-router.get("/shipper", GetShipperOrderAPI); 
+router.get("/orderDetail/:order_id", GetOrderDetailByIdAPI); 
+// router.get("/shipper", GetShipperOrderAPI); 
 
 router.put("/status", ChangeStatusAPI); 
 router.put("/cancel", CancelOrderAPI);

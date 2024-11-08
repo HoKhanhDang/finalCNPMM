@@ -9,15 +9,11 @@ export const getFoodByIdAPI = async (id: any) => {
 }
 
 export const addFoodAPI = async (data: any) => {
-    return await axios.get("http://localhost:5000/menu");
+    return await axios.get("http://localhost:5000/api/menu");
 }
 
 export const getFoodByParamsAPI = async (data: any) => {
-    return await axios({
-        method: "GET",
-        url: "/menu",
-        params: data,
-    });
+    return await axios.get("http://localhost:5000/api/menu");
 }
 
 export const getSumFoodAPI = async (data: any) => {

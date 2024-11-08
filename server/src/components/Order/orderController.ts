@@ -8,8 +8,9 @@ import {
     CancelOrderService,
     GetShipperOrderService,
     CreateOrderService,
-    AddOrderItemService,
     GetOrderByIdService,
+    AddOrderItemService,
+    GetOrderDetailByIdService,
 } from "./order.service";
 
 const CreateOrderAPI = async (req: Request, res: Response) => {
@@ -60,14 +61,14 @@ const AddOrderItemsAPI = async (req: Request, res: Response) => {
 };
 
 const GetOrderByCustomerIdAPI = async (req: Request, res: Response) => {
-    const { user_id } = req.params;
+    const { customer_id } = req.params;
 
-    if (!user_id) {
+    if (!customer_id) {
         return res.status(400).json({ message: "User id is required" });
     }
 
     try {
-        const result = await GetOrderByCustomerIdService({ user_id: Number(user_id) });
+        const result = await GetOrderByCustomerIdService({ user_id: Number(customer_id) });
         return res.status(200).json({ message: "Order fetched successfully", result });
     } catch (err) {
         console.error(err);
@@ -75,19 +76,38 @@ const GetOrderByCustomerIdAPI = async (req: Request, res: Response) => {
     }
 };
 
-const GetOrderByIdAPI = async (req: Request, res: Response) => {
+const GetOrderDetailByIdAPI = async (req: Request, res: Response) => {
     const order_id = req.params.order_id;
 
     if (!order_id) {
-        return res.status(400).json({ message: "Order id is required" });
+        return res.status(400).json({ message: "Orderdetail id is required" });
     }
 
     try {
-        const result = await GetOrderByIdService(Number(order_id));
+        const result = await GetOrderDetailByIdService(Number(order_id));
         if (!result) {
-            return res.status(404).json({ message: "Order not found" });
+            return res.status(404).json({ message: "Orderdetail not found" });
         }
-        return res.status(200).json({ message: "Order fetched successfully", result });
+        return res.status(200).json({ message: "Orderdetail fetched successfully", result });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Internal server error " + err });
+    }
+};
+
+const GetOrderByIdAPI = async (req: Request, res: Response) => {
+    const id = req.params.order_id;
+
+    if (!id) {
+        return res.status(400).json({ message: "Orderdetail id is required" });
+    }
+
+    try {
+        const result = await GetOrderByIdService(Number(id));
+        if (!result) {
+            return res.status(404).json({ message: "Orderdetail not found" });
+        }
+        return res.status(200).json({ message: "Orderdetail fetched successfully", result });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Internal server error " + err });
@@ -131,14 +151,8 @@ const GetOrderByParamsAPI = async (req: Request, res: Response) => {
 };
 
 const GetOrderItemsAPI = async (req: Request, res: Response) => {
-    const { order_id } = req.params;
-
-    if (!order_id) {
-        return res.status(400).json({ message: "Order id is required" });
-    }
-
     try {
-        const result = await GetOrderItemsService({ order_id: Number(order_id) });
+        const result = await GetOrderItemsService();
         return res.status(200).json({ message: "Order items fetched successfully", result });
     } catch (err) {
         console.error(err);
@@ -208,9 +222,10 @@ export {
     GetOrderByCustomerIdAPI,
     GetSumOrderAPI,
     GetOrderByParamsAPI,
+    GetOrderByIdAPI,
     GetOrderItemsAPI,
     ChangeStatusAPI,
     CancelOrderAPI,
     GetShipperOrderAPI,
-    GetOrderByIdAPI,
+    GetOrderDetailByIdAPI,
 };

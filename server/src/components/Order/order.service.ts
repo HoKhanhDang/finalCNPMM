@@ -120,18 +120,19 @@ const GetOrderByCustomerIdService = async (params: {
     user_id: number; // ID người dùng
 }): Promise<IOrder[]> => {
     const { user_id } = params;
-    return await Order.find({ user_id }).sort({ create_at: -1 });
+    return await Order.find({ user_id });
 };
 
-const GetOrderByIdService = async (order_id: number): Promise<IOrderItem[] | null> => {
+const GetOrderDetailByIdService = async (order_id: number): Promise<IOrderItem[] | null> => {
     return await OrderItem.find({ order_id });
 };
 
-const GetOrderItemsService = async (params: {
-    order_id: number; // ID đơn hàng
-}): Promise<IOrderItem[]> => {
-    const { order_id } = params;
-    return await OrderItem.find({ order_id });
+const GetOrderByIdService = async (order_id: number): Promise<IOrder[] | null> => {
+    return await Order.find({ _id: order_id });
+};
+
+const GetOrderItemsService = async (): Promise<IOrderItem[]> => {
+    return await OrderItem.find();
 };
 
 const ChangeStatusService = async (params: {
@@ -185,9 +186,10 @@ export {
     GetSumOrderService,
     GetOrderByParamsService,
     GetOrderByCustomerIdService,
-    GetOrderByIdService,
+    GetOrderDetailByIdService,
     GetOrderItemsService,
     ChangeStatusService,
+    GetOrderByIdService,
     CancelOrderService,
     GetShipperOrderService,
 };
