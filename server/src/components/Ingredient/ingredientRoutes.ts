@@ -24,6 +24,6 @@ router.get("/:i_id", GetIngredientById); //GET Theo _id
 
 router.post("/", AddIngredient);
 router.delete("/:i_id", DeleteIngredient);
-router.put("/", UpdateIngredient);
+router.put("/:i_id", UpdateIngredient);
 
 export default router;
