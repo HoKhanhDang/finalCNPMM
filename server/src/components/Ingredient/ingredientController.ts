@@ -109,7 +109,8 @@ const DeleteIngredient = async (req: Request, res: Response) => {
 };
 const UpdateIngredient = async (req: Request, res: Response) => {
   console.log("UpdateIngredient", req.body);
-  const { i_id, name, stock, is_available, unit } = req.body;
+  const { i_id } = req.params;
+  const { name, stock, is_available, unit } = req.body;
   if (!i_id || !name || stock === undefined || is_available === undefined) {
     return res.status(400).json({ message: "All fields are required" });
   }
